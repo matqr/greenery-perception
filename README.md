@@ -35,7 +35,7 @@ The notebook `0a_gvi-calculations.ipynb` peforms the semantic segmentation for g
 Then, the notebook `0b_preprocessing.ipynb` creates different datasets with Q Scores based on all available and different demographic and personality groups.
 
 # Methodology
-[](img/methodology.png)
+![](img/methodology.png)
 
 # Analyses
 The notebook `0a_preprocessing.ipynb` creates different datasets with Q Scores based on all available and different demographic and personality groups.

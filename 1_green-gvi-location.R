@@ -235,7 +235,7 @@ p_combined <- p_summary_row + p_summary_overall +
 
 p_combined
 
-# save figure ----
+## save figure ----
 ggsave(
   "green-GVI-matrix-paired-locations-extended_v2.png",
   plot = p_combined,
@@ -246,74 +246,18 @@ ggsave(
   dpi = 300,
 )
 
-# Presentation plots ----
-p_heatmap_matrix <- corr_matrix %>%
-  ggplot(aes(x = SVI_from, y = participants_from, fill = correlation)) +
-  geom_tile(color = "white", linewidth = 1) +
-  geom_text(aes(label = label, fontface = fontface), color = "black", size = 20) +
-  scale_fill_gradientn(colours = color_palette(200),
-                       limits = col_lim,
-                       name = "Pearson\nCorrelation",
-                       guide = "none") +
-  theme_minimal(base_family = font_family, base_size = base_size) +
-  theme(
-    plot.background = element_rect(color = NA, fill = bg_color),
-    panel.grid = element_blank(),
-    axis.text.y = element_text(hjust = 0, margin = margin(r = -10), family = font_family),
-    plot.margin = margin(4, 4, 4, 4),
-    plot.title = element_text(
-      hjust = 0.5,
-      size = base_size * 2,
-      margin = margin(b = 8)
-    ),
-    legend.position = "bottom",
-    legend.key.height = unit(2, "cm"),  # Make colorbar longer
-    legend.key.width = unit(1, "cm"),  # Adjust width if needed
-  ) + 
-  # coord_equal() + # Make tiles square
-  labs(x = "SVI from", y = "Participants from")
+# presentation plots ----
+p_combined_presentation <- p_combined
 
-corr_all_svi <- df_par_from_svi_from %>%
-  group_by(participants_from) %>%
-  summarize(
-    correlation = cor(Score_scaled, green_view_index, use = "complete.obs"),
-    p_value     = cor.test(Score_scaled, green_view_index, use = "complete.obs")$p.value,
-    n           = n(),
-    .groups = "drop"
-  ) %>%
-  filter(n >= min_samples) %>%
-  mutate(
-    significance = case_when(p_value < 0.05 ~ "*", TRUE ~ ""),
-    label   = paste0(sprintf("%.2f", correlation), significance),
-    fontface = ifelse(p_value < 0.05, "bold", "plain")
-  ) %>%
-  mutate(SVI_from = "All SVI")   # fake column name for plotting
-
-p_summary <- corr_all_svi %>%
-  ggplot(aes(x = SVI_from, y = participants_from, fill = correlation)) +
-  geom_tile(color = "white", linewidth = 1) +
-  geom_text(aes(label = label, fontface = fontface), color = "black", size = 20) +
-  scale_fill_gradientn(colours = color_palette(200),
-                       limits = col_lim,
-                       name = "Pearson\nCorrelation") +
-  theme_minimal(base_family = font_family, base_size = base_size) +
-  theme(
-    axis.title = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks = element_blank(),
-    panel.grid = element_blank(),
-    plot.margin = margin(4, 4, 4, 4),
-    # legend.position = "bottom",
-    # legend.key.height = unit(2, "cm"),  # Make colorbar longer
-    # legend.key.width = unit(1, "cm"),  # Adjust width if needed
-  )
-
-p_combined <- p_heatmap_matrix + p_summary + plot_layout(widths = c(5, 1)) & theme(legend.position = "bottom")
-p_combined
+# simply double the geom_text size, which is the second layer
+for(i in 1:4) {
+  p_combined_presentation[[i]]$layers[[2]]$aes_params$size <- 20 # originally 10
+}
+p_combined_presentation
 
 ggsave(
   "green-GVI-matrix-paired-locations-extended-presentation.png",
-  plot = p_combined,
+  plot = p_combined_presentation,
   path = "img/",
   height = 10,
   width = 20,
